@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Upload Long Video • Secure Drop</title>
+  <meta name="description" content="A clean landing page that routes users to a OneDrive Request Files link (anonymous upload)." />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121a33;
+      --muted: #9fb3ff;
+      --text: #eaf0ff;
+      --accent: #6ea8ff;
+      --accent-strong: #4f8dff;
+      --ok: #5ee3a1;
+      --warn: #ffd166;
+      --danger: #ff7a7a;
+      --shadow: 0 10px 35px rgba(17, 25, 40, 0.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 10% 10%, #1a2552 0%, rgba(26,37,82,0) 60%),
+                  radial-gradient(1000px 600px at 90% 20%, #223064 0%, rgba(34,48,100,0) 60%),
+                  linear-gradient(180deg, #0b1020, #0b1020 40%);
+      background-attachment: fixed;
+    }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 18px 20px; margin-top: 8px; border-radius: var(--radius);
+      background: rgba(255,255,255,0.04); backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+    .brand .title { font-weight: 700; letter-spacing: 0.25px; }
+
+    .lang {
+      display: inline-flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 6px;
+    }
+    .lang button {
+      appearance: none; border: 0; background: transparent; color: var(--text);
+      padding: 8px 12px; border-radius: 999px; cursor: pointer; opacity: 0.85;
+    }
+    .lang button[aria-pressed="true"] { background: rgba(255,255,255,0.12); opacity: 1; }
+
+    main { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-top: 26px; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+
+    h1 { font-size: clamp(28px, 3.2vw, 40px); margin: 6px 0 10px; }
+    p.lead { font-size: clamp(15px, 1.8vw, 18px); color: #d7defa; margin: 0 0 14px; }
+
+    .cta {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 18px 0 8px;
+    }
+    .btn {
+      --padY: 14px; --padX: 18px;
+      appearance: none; border: 0; cursor: pointer; text-decoration: none; color: white;
+      border-radius: 12px; padding: var(--padY) var(--padX); font-weight: 700; letter-spacing: .2px;
+      transition: transform .06s ease, filter .2s ease;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn:active { transform: translateY(1px) scale(0.995); }
+    .btn.primary { background: linear-gradient(180deg, var(--accent), var(--accent-strong)); }
+    .btn.secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); }
+
+    .kicker { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+    .kicker .dot { width: 8px; height: 8px; background: var(--ok); border-radius: 999px; box-shadow: 0 0 0 2px rgba(94,227,161,.25); }
+
+    ul.steps { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+    .step { display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: start; }
+    .badge { width: 36px; height: 36px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16); border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: var(--muted); }
+    .step h3 { margin: 0 0 6px; font-size: 16px; }
+    .step p { margin: 0; color: #c9d5ff; font-size: 14px; }
+
+    .meta {
+      display: grid; gap: 12px; font-size: 14px; color: #c9d5ff;
+      border-top: 1px dashed rgba(255,255,255,0.18); margin-top: 18px; padding-top: 18px;
+    }
+
+    .notice { font-size: 13px; color: #b9c7ff; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); }
+
+    .grid { display: grid; gap: 12px; }
+
+    footer { margin: 28px 0 14px; opacity: .8; font-size: 13px; text-align: center; color: #b8c5ff; }
+    a, a:visited { color: #a7c3ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <!-- Replace src with your logo (transparent PNG/SVG recommended) -->
+        <img src="https://dummyimage.com/80x80/3a4ea1/ffffff&text=LOGO" alt="Your Logo" />
+        <div class="title" id="brandTitle">Secure Video Drop</div>
+      </div>
+      <nav class="lang" aria-label="Language">
+        <button id="btnEN" aria-pressed="true">EN</button>
+        <button id="btnPT" aria-pressed="false">PT</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="heroTitle">
+        <div class="kicker"><span class="dot" aria-hidden="true"></span><span id="kicker">Anonymous, upload‑only</span></div>
+        <h1 id="heroTitle">Upload your long video safely</h1>
+        <p class="lead" id="heroLead">Click the button below. A Microsoft upload page opens in a new tab. You won’t need an account and you won’t see other files.</p>
+
+        <div class="cta">
+          <a id="uploadBtn" class="btn primary" href="#" target="_blank" rel="noopener" aria-label="Open upload page">
+            <!-- simple icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l4 4-4-4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span id="btnLabel">Open upload page</span>
+          </a>
+          <button id="copyBtn" class="btn secondary" type="button" aria-label="Copy upload link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 9V4a2 2 0 012-2h7a2 2 0 012 2v7a2 2 0 01-2 2h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="8" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/></svg>
+            <span id="copyLabel">Copy link</span>
+          </button>
+          <span class="pill" id="sizeNote">Up to 250 GB per file</span>
+        </div>
+
+        <ul class="steps">
+          <li class="step">
+            <div class="badge">1</div>
+            <div>
+              <h3 id="s1h">Prepare your file</h3>
+              <p id="s1p">Export your video and confirm it plays correctly. Rename it clearly (e.g., ProjectName_Date).</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="badge">2</div>
+            <div>
+              <h3 id="s2h">Click “Open upload page”</h3>
+              <p id="s2p">The Microsoft page is upload‑only. If you’re not signed in, you’ll be asked for a display name.</p>
+            </div>
+          </li>
+          <li class="step">
+            <div class="badge">3</div>
+            <div>
+              <h3 id="s3h">Wait for completion</h3>
+              <p id="s3p">Keep the tab open until the progress reaches 100%. You’ll see a confirmation when finished.</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="meta">
+          <div id="formats">Accepted formats: .mp4, .mov, .mkv (most common are fine)</div>
+          <div id="privacy">Your upload is private; other files in the folder are not visible to you.</div>
+        </div>
+      </section>
+
+      <aside class="card" aria-labelledby="infoTitle">
+        <h2 id="infoTitle" style="margin-top: 0">Notes & Help</h2>
+        <div class="grid">
+          <div>
+            <strong id="tipHeader">Tips</strong>
+            <ul id="tips" style="margin: 8px 0 0 18px; color:#c9d5ff;">
+              <li>Stable internet is best; wired or strong Wi‑Fi.</li>
+              <li>Avoid sleep mode during the upload.</li>
+              <li>Large uploads can take time; that’s normal for long videos.</li>
+            </ul>
+          </div>
+          <div>
+            <strong id="contactHeader">Support</strong>
+            <p id="contactText" class="notice">Questions? Email <a id="supportEmail" href="mailto:support@example.com">support@example.com</a> or send a message on <a href="#" id="whatsLink">WhatsApp</a>.</p>
+          </div>
+          <div>
+            <strong id="policyHeader">Policy</strong>
+            <p id="policyText" class="notice">By uploading, you confirm you have rights to share this content and it complies with our guidelines.</p>
+          </div>
+
+          <!-- OPTIONAL: Embed a metadata form below by replacing the src with your Microsoft Forms "Anyone can respond" embed URL. Remove the entire block if not needed. -->
+          <div id="formBlock" style="display:none;">
+            <strong id="formHeader">(Optional) Provide details</strong>
+            <p id="formText" class="notice">If requested, fill in title, project, and contact so we can process your video faster.</p>
+            <iframe id="formFrame" src="" width="100%" height="520" style="border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; background: #fff"></iframe>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div id="foot">© <span id="year"></span> Your Organization • All rights reserved</div>
+    </footer>
+  </div>
+
+  <script>
+    // =====================
+    // CONFIGURABLE SETTINGS
+    // =====================
+    // 1) Paste your OneDrive/SharePoint "Request files" link below
+    const REQUEST_FILES_LINK = "https://your-onedrive-request-files-link.example"; // <-- REPLACE ME
+
+    // 2) (Optional) Embed a Microsoft Form (set to "Anyone can respond") for metadata
+    //    To use: set FORM_EMBED to the embed URL and set ENABLE_FORM to true
+    const ENABLE_FORM = false; // set to true to show
+    const FORM_EMBED = ""; // e.g., "https://forms.office.com/Pages/ResponsePage.aspx?...&embed=true"
+
+    // 3) Branding: title, brand, support email, WhatsApp link
+    const BRAND_TITLE = "Secure Video Drop"; // header title
+    const SUPPORT_EMAIL = "support@example.com";
+    const WHATSAPP_LINK = "https://wa.me/0000000000000"; // intl format, e.g., 55... for Brazil
+
+    // =====================
+    // INIT
+    // =====================
+    const $ = (q) => document.querySelector(q);
+    const set = (id, text) => { const el = $(id); if (el) el.innerText = text; };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Hook up buttons and links
+      const uploadBtn = document.getElementById('uploadBtn');
+      uploadBtn.href = REQUEST_FILES_LINK;
+
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(REQUEST_FILES_LINK);
+          copyBtn.classList.add('copied');
+          copyBtn.querySelector('#copyLabel').innerText = currentLang.copyDone;
+          setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.querySelector('#copyLabel').innerText = currentLang.copy; }, 1600);
+        } catch (e) {
+          alert(currentLang.copyFallback + '\n' + REQUEST_FILES_LINK);
+        }
+      });
+
+      // Footer year & branding
+      document.getElementById('year').textContent = new Date().getFullYear();
+      document.title = BRAND_TITLE + ' • Upload';
+      document.getElementById('brandTitle').innerText = BRAND_TITLE;
+      document.getElementById('supportEmail').href = `mailto:${SUPPORT_EMAIL}`;
+      document.getElementById('supportEmail').innerText = SUPPORT_EMAIL;
+      document.getElementById('whatsLink').href = WHATSAPP_LINK;
+
+      // Optional form embed
+      if (ENABLE_FORM && FORM_EMBED) {
+        document.getElementById('formBlock').style.display = '';
+        document.getElementById('formFrame').src = FORM_EMBED;
+      }
+
+      // Language toggles
+      document.getElementById('btnEN').addEventListener('click', () => setLang('en'));
+      document.getElementById('btnPT').addEventListener('click', () => setLang('pt'));
+      setLang('en');
+    });
+
+    // =====================
+    // I18N
+    // =====================
+    const L = {
+      en: {
+        kicker: 'Anonymous, upload‑only',
+        h1: 'Upload your long video safely',
+        lead: 'Click the button below. A Microsoft upload page opens in a new tab. You won’t need an account and you won’t see other files.',
+        open: 'Open upload page',
+        copy: 'Copy link',
+        copyDone: 'Copied! ✅',
+        size: 'Up to 250 GB per file',
+        s1h: 'Prepare your file',
+        s1p: 'Export your video and confirm it plays correctly. Rename it clearly (e.g., ProjectName_Date).',
+        s2h: 'Click “Open upload page”',
+        s2p: 'The Microsoft page is upload‑only. If you’re not signed in, you’ll be asked for a display name.',
+        s3h: 'Wait for completion',
+        s3p: 'Keep the tab open until the progress reaches 100%. You’ll see a confirmation when finished.',
+        fmts: 'Accepted formats: .mp4, .mov, .mkv (most common are fine)',
+        priv: 'Your upload is private; other files in the folder are not visible to you.',
+        tipsHead: 'Tips',
+        supportHead: 'Support',
+        supportText: 'Questions? Email ',
+        policyHead: 'Policy',
+        policyText: 'By uploading, you confirm you have rights to share this content and it complies with our guidelines.',
+        foot: 'All rights reserved',
+        copyFallback: 'Copy this link manually:'
+      },
+      pt: {
+        kicker: 'Anônimo, somente envio',
+        h1: 'Envie seu vídeo longo com segurança',
+        lead: 'Clique no botão abaixo. Uma página da Microsoft abrirá em outra aba. Não é preciso conta e você não verá outros arquivos.',
+        open: 'Abrir página de envio',
+        copy: 'Copiar link',
+        copyDone: 'Copiado! ✅',
+        size: 'Até 250 GB por arquivo',
+        s1h: 'Prepare o arquivo',
+        s1p: 'Exporte o vídeo e confirme que reproduz corretamente. Renomeie de forma clara (ex.: Projeto_Data).',
+        s2h: 'Clique em “Abrir página de envio”',
+        s2p: 'A página da Microsoft é apenas para envio. Se não estiver logado, será pedido um nome de exibição.',
+        s3h: 'Aguarde a conclusão',
+        s3p: 'Mantenha a aba aberta até atingir 100%. Uma confirmação aparecerá ao finalizar.',
+        fmts: 'Formatos aceitos: .mp4, .mov, .mkv (os mais comuns funcionam)',
+        priv: 'Seu envio é privado; os demais arquivos da pasta não ficam visíveis para você.',
+        tipsHead: 'Dicas',
+        supportHead: 'Suporte',
+        supportText: 'Dúvidas? Envie e‑mail para ',
+        policyHead: 'Política',
+        policyText: 'Ao enviar, você confirma ter direitos sobre o conteúdo e concorda com nossas diretrizes.',
+        foot: 'Todos os direitos reservados',
+        copyFallback: 'Copie este link manualmente:'
+      }
+    };
+
+    let currentLang = L.en;
+    function setLang(code) {
+      currentLang = code === 'pt' ? L.pt : L.en;
+      document.getElementById('btnEN').setAttribute('aria-pressed', code === 'en');
+      document.getElementById('btnPT').setAttribute('aria-pressed', code === 'pt');
+
+      set('#kicker', currentLang.kicker);
+      set('#heroTitle', currentLang.h1);
+      set('#heroLead', currentLang.lead);
+      set('#btnLabel', currentLang.open);
+      set('#copyLabel', currentLang.copy);
+      set('#sizeNote', currentLang.size);
+      set('#s1h', currentLang.s1h); set('#s1p', currentLang.s1p);
+      set('#s2h', currentLang.s2h); set('#s2p', currentLang.s2p);
+      set('#s3h', currentLang.s3h); set('#s3p', currentLang.s3p);
+      set('#formats', currentLang.fmts);
+      set('#privacy', currentLang.priv);
+      set('#tipHeader', currentLang.tipsHead);
+      set('#contactHeader', currentLang.supportHead);
+      // supportText is split to keep the email link intact
+      document.getElementById('contactText').firstChild.textContent = (code==='pt' ? 'Dúvidas? Envie e‑mail para ' : 'Questions? Email ');
+      set('#policyHeader', currentLang.policyHead);
+      set('#policyText', currentLang.policyText);
+      document.getElementById('foot').innerHTML = `© <span id="year">${new Date().getFullYear()}</span> Your Organization • ${currentLang.foot}`;
+    }
+  </script>
+</body>
+</html>
